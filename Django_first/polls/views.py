@@ -1,45 +1,64 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
+from django.views import generic
+from .models import Question, Choice
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.db.models import F
+
+# def index(request):
+#     latest_question_list = Question.objects.order_by("-pub_date")[:5]
+#     context = {"latest_question_list": latest_question_list}
+#     return render(request, "polls/index.html", context)
+
+# def detail(request, question_id):
+# 	question = get_object_or_404(Question, pk=question_id)
+# 	return render(request, "polls/detail.html", {"question": question})
+
+# def results(request, question_id):
+#     question = get_object_or_404(Question, pk=question_id)
+#     return render(request, "polls/results.html", {"question": question})
+
+# def vote(request, question_id):
+#     return HttpResponse(f"You're voting on question {question_id}.")
 
 
-def index(request):
-    html = """
-    <html>
-    <head>
-        <title>🎬 영화 추천</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 2em; }
-            .movie { border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; border-radius: 10px; }
-            .title { font-size: 1.5em; font-weight: bold; }
-            .genre { color: gray; }
-            .description { margin-top: 0.5em; }
-            .btn { margin-top: 1em; display: inline-block; padding: 0.5em 1em; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
-        </style>
-    </head>
-    <body>
-        <h1>🎬 오늘의 영화 추천</h1>
+class IndexView(generic.ListView):
+    template_name = "polls/index.html"
+    context_object_name = "latest_question_list"
 
-        <div class="movie">
-            <div class="title">인터스텔라</div>
-            <div class="genre">장르: SF, 드라마</div>
-            <div class="description">우주를 배경으로 한 아버지의 위대한 사랑과 모험 이야기.</div>
-            <a href="#" class="btn">추천하기</a>
-        </div>
+    def get_queryset(self):
+        return Question.objects.order_by("-pub_date")[:5]
 
-        <div class="movie">
-            <div class="title">기생충</div>
-            <div class="genre">장르: 드라마, 스릴러</div>
-            <div class="description">상류층과 하류층의 현실을 꼬집는 블랙코미디 영화.</div>
-            <a href="#" class="btn">추천하기</a>
-        </div>
 
-        <div class="movie">
-            <div class="title">토이 스토리</div>
-            <div class="genre">장르: 애니메이션, 가족</div>
-            <div class="description">장난감들의 유쾌한 우정과 모험 이야기.</div>
-            <a href="#" class="btn">추천하기</a>
-        </div>
-    </body>
-    </html>
-    """
-    return HttpResponse(html)
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = "polls/detail.html"
+    context_object_name = "question"
+
+
+# 결과 페이지
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = "polls/results.html"
+    context_object_name = "question"
+
+
+# 투표 처리 로직
+def vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST["choice"])
+    except (KeyError, Choice.DoesNotExist):
+        return render(
+            request,
+            "polls/detail.html",
+            {
+                "question": question,
+                "error_message": "You didn't select a choice.",
+            },
+        )
+    else:
+        selected_choice.votes = F("votes") + 1
+        selected_choice.save()
+        return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))

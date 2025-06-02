@@ -19,7 +19,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("", include("polls.urls")),
-    path("movies/", include("polls.urls")),  # polls 앱의 URL 연결
+    path("polls", include("polls.urls")),
     path("admin/", admin.site.urls),
 ]
