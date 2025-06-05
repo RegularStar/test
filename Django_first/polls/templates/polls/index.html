@@ -1,23 +1,38 @@
-
 {% extends "polls/base.html" %}
+{% load static %}
 
-{%load static%}
 {% block title %}최근 질문{% endblock %}
 
 {% block content %}
 <h1>최근 질문</h1>
+
 {% if latest_question_list %}
 <ul>
-     {% for question in latest_question_list %}
-     <li>
-     <a href="{% url 'polls:detail' question.id %}">
-         {{ question.question_text }}
-     </a>
-     </li>
+    {% for question in latest_question_list %}
+    <li>
+
+        <div>
+        <a href="{% url 'polls:detail' question.id %}">
+            {{ question.question_text }}
+        </a>
+        <div>
+            <a href="{% url 'polls:question_update' question.id %}">수정</a>
+            <a href="{% url 'polls:question_delete' question.id %}">삭제</a>
+          </div>
+
+    </div>
+
+    </li>
     {% endfor %}
 </ul>
-{% else %}
-<p>No polls are available.</p>
+
+<p>
+    <a href="{% url 'polls:question_create' %}">
+        <button>질문 생성</button>
+    </a>
+</p>
+
+
+</p>
 {% endif %}
 {% endblock %}
- 

@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.views import generic
 from .models import Question, Choice
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.db.models import F
 
 # def index(request):
@@ -62,3 +62,23 @@ def vote(request, question_id):
         selected_choice.votes = F("votes") + 1
         selected_choice.save()
         return HttpResponseRedirect(reverse("polls:results", args=(question.id,)))
+
+
+class QuestionCreateView(generic.CreateView):
+    model = Question
+    fields = ["question_text", "pub_date"]
+    template_name = "polls/question_form.html"
+    success_url = reverse_lazy("polls:index")
+
+
+class QuestionUpdateView(generic.UpdateView):
+    model = Question
+    fields = ["question_text", "pub_date"]
+    template_name = "polls/question_form.html"
+    success_url = reverse_lazy("polls:index")
+
+
+class QuestionDeleteView(generic.DeleteView):
+    model = Question
+    template_name = "polls/question_form_delete.html"
+    success_url = reverse_lazy("polls:index")
