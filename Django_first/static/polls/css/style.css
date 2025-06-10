@@ -1,0 +1,16 @@
+
+
+/* icon */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0 1em 0;
+    gap: 10px;
+  }
+  
+  .header .icon {
+    width: 50px; /* 크기 조절 */
+    height: 50px;
+  }
+  

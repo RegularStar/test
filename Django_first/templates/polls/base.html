@@ -1,0 +1,13 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+{% include "polls/head.html" %} ==<!--head분리-->==
+  <body>
+    {% include "polls/header.html" %} 
+    <main>
+    {% block content %}
+    {% endblock %}
+    </main>
+    {% include "polls/footer.html" %}
+  </body>
+</html>

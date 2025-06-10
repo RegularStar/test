@@ -5,6 +5,9 @@ from .models import Question, Choice
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.db.models import F
+from django.utils import timezone
+from django.views.generic import DetailView
+from django.http import Http404
 
 # def index(request):
 #     latest_question_list = Question.objects.order_by("-pub_date")[:5]
@@ -28,13 +31,20 @@ class IndexView(generic.ListView):
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        return Question.objects.order_by("-pub_date")[:5]
+        return Question.objects.filter(pub_date__lte=timezone.now()).order_by(
+            "-pub_date"
+        )
 
 
-class DetailView(generic.DetailView):
+class DetailView(DetailView):
     model = Question
     template_name = "polls/detail.html"
-    context_object_name = "question"
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if obj.pub_date > timezone.now():
+            raise Http404("Question not found")
+        return obj
 
 
 # 결과 페이지
@@ -80,5 +90,5 @@ class QuestionUpdateView(generic.UpdateView):
 
 class QuestionDeleteView(generic.DeleteView):
     model = Question
-    template_name = "polls/question_form_delete.html"
+    template_name = "polls/question_confirm_delete.html"
     success_url = reverse_lazy("polls:index")

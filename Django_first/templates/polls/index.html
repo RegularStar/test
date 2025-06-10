@@ -1,0 +1,30 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}<h1>최근 질문</h1>{% endblock %}
+
+{% block content %}
+<div class="header">
+  <img src="{% static 'polls/images/icon.png' %}" alt="아이콘" class="icon" />
+  <h2>설문 목록</h2>
+</div>
+
+{% if latest_question_list %}
+<ul class="question-list">
+  {% for question in latest_question_list %}
+  <li class="question-item">
+    <div class="question-text">
+      <a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a>
+    </div>
+    <div class="question-actions">
+      <a href="{% url 'polls:question_create' %}" class="button create">글생성</a>
+      <a href="{% url 'polls:question_update' question.id %}" class="button update">수정</a>
+      <a href="{% url 'polls:question_delete' question.id %}" class="button delete">삭제</a>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No polls are available.</p>
+{% endif %}
+{% endblock %}
