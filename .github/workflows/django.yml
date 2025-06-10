@@ -1,0 +1,31 @@
+name: Django CI                       # 이 워크플로우의 이름
+
+on:
+  push:
+    branches: [ "Eunice" ]
+  pull_request:
+    branches: [ "Eunice" ]             # 이 워크플로우의 이름
+
+jobs:                                 # 실행할 작업(Job) 정의 시작
+  test:                               # job 이름: test
+    runs-on: ubuntu-latest            # 가상 환경: 최신 Ubuntu
+
+    steps:                            # 단계별로 무엇을 할지
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Make migrations
+        run: python manage.py makemigrations
+
+      - name: Migrate database
+        run: python manage.py migrate
+
+      - name: Run tests
+        run: python manage.py test
